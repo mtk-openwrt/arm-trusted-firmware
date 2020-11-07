@@ -99,20 +99,38 @@ void boot_to_kernel(uint64_t x1, uint64_t x2, uint64_t x3, uint64_t x4)
 
 uint32_t plat_get_spsr_for_bl33_entry(void)
 {
+#ifdef KERNEL_IS_32BIT
 	unsigned int mode;
 	uint32_t spsr;
 	unsigned int ee;
 	unsigned long daif;
 
-	INFO("Secondary bootloader is AArch32\n");
+	INFO("Is AArch32\n");
 	mode = MODE32_svc;
 	ee = 0;
+
 	/*
 	 * TODO: Choose async. exception bits if HYP mode is not
 	 * implemented according to the values of SCR.{AW, FW} bits
 	 */
 	daif = DAIF_ABT_BIT | DAIF_IRQ_BIT | DAIF_FIQ_BIT;
-
 	spsr = SPSR_MODE32(mode, 0, ee, daif);
+
+	/*
+	 * Pass boot argument to next stage
+	 * ldr	w4, = pl_boot_argument
+	 * ldr	w5, = BOOT_ARGUMENT_SIZE
+	 * bl33_ep_info->args.arg4 = (unsigned long)(uintptr_t)BOOT_ARGUMENT_LOCATION;
+	 * bl33_ep_info->args.arg5 = (unsigned long)(uintptr_t)BOOT_ARGUMENT_SIZE;
+	 */
+#else
+	uint32_t spsr;
+	INFO("Is AArch64\n");
+	/*
+	 * TODO: Choose async. exception bits if HYP mode is not
+	 * implemented according to the values of SCR.{AW, FW} bits
+	 */
+	spsr = SPSR_64(MODE_EL2, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+#endif
 	return spsr;
 }

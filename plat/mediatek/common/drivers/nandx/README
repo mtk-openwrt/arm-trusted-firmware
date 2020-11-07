@@ -1,0 +1,31 @@
+
+                          NAND2.0
+                ===============================
+
+    NAND2.0 is a common nand driver which designed for accessing
+different type of NANDs(SLC, SPI-NAND, MLC, TLC) on various OS. This
+driver can work on mostly SoCs of Mediatek.
+
+    Although there already has a common nand driver, it doesn't cover
+SPI-NAND, and not match our IC-Verification's reqirement. We need
+a driver that can be exten or cut easily.
+
+    This driver is base on NANDX & SLC. We try to refactor structures,
+and make them inheritable. We also refactor some operations' flow
+principally for adding SPI-NAND support.
+
+    This driver's architecture is like:
+
+          Driver @LK/Uboot/DA...           |IC verify/other purposes
+    ----------------------------------------------------------------
+      partition       |        BBM         |
+    -------------------------------------- |       extend_core
+             nandx_core/core_io            |
+    ----------------------------------------------------------------
+             nand_chip/nand_base           |
+    -------------------------------------- |        extend_nfi
+      nand_device     |    nfi/nfi_base    |
+
+    Any block of above graph can be extended at your will, if you
+want add new feature into this code, please make sure that your code
+would follow the framework, and we will be appreciated about it.

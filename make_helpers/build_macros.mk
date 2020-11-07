@@ -147,6 +147,9 @@ define CERT_ADD_CMD_OPT
     $(3)CRT_ARGS += $(2) $(1)
 endef
 
+define CERT_REMOVE_CMD_OPT
+    $(3)CRT_ARGS := $(filter-out $(2) $(1),$(CRT_ARGS))
+endef
 # TOOL_ADD_IMG allows the platform to specify an external image to be packed
 # in the FIP and/or for which certificate is generated. It also adds a
 # dependency on the image file, aborting the build if the file does not exist.
@@ -374,6 +377,18 @@ ${LIB_DIR}/lib$(1).a: $(OBJS)
 	$$(Q)$$(AR) cr $$@ $$?
 endef
 
+# ADD_PREBUILT_LIBS macro adding pre-built library
+# Arguments:
+#   $(1) = <lib_path>/<lib_name>.o
+define ADD_PREBUILT_LIB
+	$(eval OBJS += ${1})
+	$(eval -include $(patsubst %.o,%.d,${1}))
+endef
+define ADD_DRAM_LIB
+	$(eval OBJS += ${1})
+	-include $(patsubst %.o,%.d,${1})
+endef
+
 # MAKE_BL macro defines the targets and options to build each BL image.
 # Arguments:
 #   $(1) = BL stage (2, 2u, 30, 31, 32, 33)
@@ -427,6 +442,12 @@ else
 	       const char version_string[] = "${VERSION_STRING}";' | \
 		$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -xc -c - -o $(BUILD_DIR)/build_message.o
 endif
+$(if $(findstring 2,${1}) $(findstring 31,${1}),
+	$(foreach prebuilt_lib, ${PREBUILT_LIBS},
+		$(call ADD_PREBUILT_LIB, ${prebuilt_lib})))
+$(if $(findstring 2,${1}), \
+	$(eval $(foreach dram_lib, ${DRAM_LIBS}, \
+		$(eval $(call ADD_DRAM_LIB,${dram_lib})))))
 ifneq ($(findstring armlink,$(notdir $(LD))),)
 	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) --entry=bl${1}_entrypoint \
 		--predefine="-D__LINKER__=$(__LINKER__)" \

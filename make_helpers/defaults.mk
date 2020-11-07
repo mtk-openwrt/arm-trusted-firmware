@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -139,6 +139,9 @@ HW_ASSISTED_COHERENCY		:= 0
 # Set the default algorithm for the generation of Trusted Board Boot keys
 KEY_ALG				:= rsa
 
+# Option to build TF with Measured Boot support
+MEASURED_BOOT			:= 0
+
 # NS timer register save and restore
 NS_TIMER_SWITCH			:= 0
 
@@ -198,8 +201,14 @@ USE_COHERENT_MEM		:= 1
 # Build option to add debugfs support
 USE_DEBUGFS			:= 0
 
+# Build option to fconf based io
+USE_FCONF_BASED_IO		:= 0
+
 # Build option to choose whether Trusted Firmware uses library at ROM
 USE_ROMLIB			:= 0
+
+# Chain of trust.
+COT				:= tbbr
 
 # Use tbbr_oid.h instead of platform_oid.h
 USE_TBBR_DEFS			:= 1
