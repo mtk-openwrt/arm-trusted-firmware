@@ -18,6 +18,7 @@ PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
 				-I${MTK_PLAT_SOC}/drivers/rtc/			\
 				-I${MTK_PLAT_SOC}/drivers/spm/			\
 				-I${MTK_PLAT_SOC}/drivers/timer/		\
+				-I${MTK_PLAT_SOC}/drivers/efuse/include		\
 				-I${MTK_PLAT_SOC}/include/
 
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
@@ -153,6 +154,14 @@ CPPFLAGS		+=	-DKERNEL_IS_DEFAULT_64BIT
 
 DOIMAGEPATH		:=	tools/mediatek/bromimage
 DOIMAGETOOL		:=	${DOIMAGEPATH}/bromimage
+
+HAVE_EFUSE_SRC_FILE	:= 	$(shell test -f ${MTK_PLAT_SOC}/drivers/efuse/src/efuse_cmd.c && echo yes)
+ifeq ($(HAVE_EFUSE_SRC_FILE),yes)
+PLAT_INCLUDES		+=	-I${MTK_PLAT_SOC}/drivers/efuse/src
+BL31_SOURCES		+=	${MTK_PLAT_SOC}/drivers/efuse/src/efuse_cmd.c
+else
+PREBUILT_LIBS		+=	${MTK_PLAT_SOC}/drivers/efuse/release/efuse_cmd.o
+endif
 
 # Enable workarounds for selected Cortex-A53 erratas.
 ERRATA_A53_826319	:=	1
