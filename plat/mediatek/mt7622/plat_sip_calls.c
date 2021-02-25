@@ -13,6 +13,9 @@
 #include <mtk_sip_svc.h>
 #include <plat_sip_calls.h>
 
+#include <efuse_cmd.h>
+#include <string.h>
+
 /* Authorized secure register list */
 enum {
 	SREG_HDMI_COLOR_EN = 0x14000904
@@ -75,6 +78,8 @@ uint64_t mediatek_plat_sip_handler(uint32_t smc_fid,
 				   uint64_t flags)
 {
 	uint64_t ret;
+	uint64_t read_buffer[4] = { 0 };
+	uint64_t write_buffer[4] = { x1, x2, x3, x4 };
 
 	switch (smc_fid) {
 	case MTK_SIP_PWR_ON_MTCMOS:
@@ -87,6 +92,47 @@ uint64_t mediatek_plat_sip_handler(uint32_t smc_fid,
 
 	case MTK_SIP_PWR_MTCMOS_SUPPORT:
 		ret = mt_sip_pwr_mtcmos_support();
+		SMC_RET1(handle, ret);
+
+	case MTK_SIP_EFUSE_READ:
+		ret = efuse_read((uint32_t)x1,
+				 (uint8_t *)read_buffer,
+				 (uint32_t)x2);
+		if (!ret) {
+			SMC_RET4(handle, read_buffer[0], read_buffer[1],
+					 read_buffer[2], read_buffer[3]);
+		} else {
+			SMC_RET1(handle, ret);
+		}
+
+	case MTK_SIP_EFUSE_WRITE:
+		ret = efuse_write((uint32_t)x1,
+				  (const uint8_t *)&x2,
+				  (uint32_t)x3);
+		SMC_RET1(handle, ret);
+
+	case MTK_SIP_EFUSE_WRITE_SBC_PUBK0_HASH:
+		ret = efuse_write((uint32_t)EFUSE_INDEX_SBC_PUBK0_HASH,
+				  (const uint8_t *)write_buffer,
+				  (uint32_t)EFUSE_LENGTH_HASH);
+		SMC_RET1(handle, ret);
+
+	case MTK_SIP_EFUSE_WRITE_SBC_PUBK1_HASH:
+		ret = efuse_write((uint32_t)EFUSE_INDEX_SBC_PUBK1_HASH,
+				  (const uint8_t *)write_buffer,
+				  (uint32_t)EFUSE_LENGTH_HASH);
+		SMC_RET1(handle, ret);
+
+	case MTK_SIP_EFUSE_WRITE_SBC_PUBK2_HASH:
+		ret = efuse_write((uint32_t)EFUSE_INDEX_SBC_PUBK2_HASH,
+				  (const uint8_t *)write_buffer,
+				  (uint32_t)EFUSE_LENGTH_HASH);
+		SMC_RET1(handle, ret);
+
+	case MTK_SIP_EFUSE_WRITE_SBC_PUBK3_HASH:
+		ret = efuse_write((uint32_t)EFUSE_INDEX_SBC_PUBK3_HASH,
+				  (const uint8_t *)write_buffer,
+				  (uint32_t)EFUSE_LENGTH_HASH);
 		SMC_RET1(handle, ret);
 
 	default:
