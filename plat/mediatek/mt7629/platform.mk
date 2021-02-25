@@ -24,6 +24,8 @@ PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
 				-I${MTK_PLAT_SOC}/drivers/pll/			\
 				-I${MTK_PLAT_SOC}/drivers/spm/			\
 				-I${MTK_PLAT_SOC}/drivers/timer/		\
+				-I${MTK_PLAT_SOC}/drivers/efuse/		\
+				-I${MTK_PLAT_SOC}/drivers/efuse/include/	\
 				-I${MTK_PLAT_SOC}/include/
 
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
@@ -96,6 +98,14 @@ CPPFLAGS		+=	-DBL2_BASE=$(BL2_BASE) -D__SOFTFP__
 DOIMAGEPATH		:=	tools/mediatek/bromimage
 DOIMAGETOOL		:=	${DOIMAGEPATH}/bromimage
 
+HAVE_EFUSE_SRC_FILE	:=	$(shell test -f ${MTK_PLAT_SOC}/drivers/efuse/src/efuse_cmd.c && echo yes)
+ifeq ($(HAVE_EFUSE_SRC_FILE),yes)
+PLAT_INCLUDES		+=	-I${MTK_PLAT_SOC}/drivers/efuse/src
+BL32_SOURCES		+=	${MTK_PLAT_SOC}/drivers/efuse/src/efuse_cmd.c
+else
+PREBUILT_LIBS		+=	${MTK_PLAT_SOC}/drivers/efuse/release/efuse_cmd.o
+endif
+
 # indicate the reset vector address can be programmed
 PROGRAMMABLE_RESET_ADDRESS	:=	1
 
@@ -109,6 +119,7 @@ BL32_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/common/plat_psci_common.c	\
 				${MTK_PLAT}/common/mtk_sip_svc.c		\
 				${MTK_PLAT_SOC}/drivers/spm/spmc.c		\
+				${MTK_PLAT_SOC}/drivers/efuse/mtk_efuse.c	\
 				${MTK_PLAT_SOC}/plat_sip_calls.c		\
 				${MTK_PLAT_SOC}/plat_topology.c		\
 				${MTK_PLAT_SOC}/plat_pm.c		\
@@ -125,6 +136,8 @@ include drivers/auth/mbedtls/mbedtls_x509.mk
 ifeq ($(MBEDTLS_DIR),)
 $(error You must specify MBEDTLS_DIR when TRUSTED_BOARD_BOOT enabled)
 endif
+
+CPPFLAGS		+=	-DMTK_EFUSE_FIELD_NORMAL
 
 AUTH_SOURCES		:=	drivers/auth/auth_mod.c		\
 				drivers/auth/crypto_mod.c	\
