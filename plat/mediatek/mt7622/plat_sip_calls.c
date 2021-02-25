@@ -8,13 +8,12 @@
 #include <common/runtime_svc.h>
 #include <lib/utils_def.h>
 #include <lib/mmio.h>
-
 #include <mtcmos.h>
 #include <mtk_sip_svc.h>
 #include <plat_sip_calls.h>
-
 #include <efuse_cmd.h>
 #include <string.h>
+#include <ar_table.h>
 
 /* Authorized secure register list */
 enum {
@@ -80,6 +79,8 @@ uint64_t mediatek_plat_sip_handler(uint32_t smc_fid,
 	uint64_t ret;
 	uint64_t read_buffer[4] = { 0 };
 	uint64_t write_buffer[4] = { x1, x2, x3, x4 };
+	uint32_t image_fit_ar_ver = (uint32_t)x1;
+	uint32_t plat_fit_ar_ver = 0;
 
 	switch (smc_fid) {
 	case MTK_SIP_PWR_ON_MTCMOS:
@@ -133,6 +134,18 @@ uint64_t mediatek_plat_sip_handler(uint32_t smc_fid,
 		ret = efuse_write((uint32_t)EFUSE_INDEX_SBC_PUBK3_HASH,
 				  (const uint8_t *)write_buffer,
 				  (uint32_t)EFUSE_LENGTH_HASH);
+		SMC_RET1(handle, ret);
+
+	case MTK_SIP_CHECK_FIT_AR_VER:
+		ret = mtk_antirollback_get_fit_ar_ver(&plat_fit_ar_ver);
+		if (!ret && image_fit_ar_ver >= plat_fit_ar_ver) {
+			SMC_RET2(handle, 1, plat_fit_ar_ver);
+		} else {
+			SMC_RET2(handle, ret, plat_fit_ar_ver);
+		}
+
+	case MTK_SIP_UPDATE_EFUSE_AR_VER:
+		ret = mtk_antirollback_update_efuse_ar_ver();
 		SMC_RET1(handle, ret);
 
 	default:
