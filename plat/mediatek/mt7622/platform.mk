@@ -227,6 +227,7 @@ endif
 
 all: $(BUILD_PLAT)/bl2.img
 
+ifneq ($(USE_MKIMAGE),1)
 ifneq ($(BROM_SIGN_KEY),)
 $(BUILD_PLAT)/bl2.img: $(BROM_SIGN_KEY)
 endif
@@ -240,6 +241,18 @@ $(BUILD_PLAT)/bl2.img: $(BUILD_PLAT)/bl2.bin $(DOIMAGETOOL)
 		$(if $(BL2_AR_VER), -r $(BL2_AR_VER))				\
 		$(if $(NAND_TYPE), -n $(NAND_TYPE))				\
 		$(BUILD_PLAT)/bl2.bin $@
+else
+MKIMAGE ?= mkimage
+
+ifneq ($(BROM_SIGN_KEY)$(BL2_AR_VER),)
+$(warning BL2 signing/anti-rollback is not supported using mkimage)
+endif
+
+$(BUILD_PLAT)/bl2.img: $(BUILD_PLAT)/bl2.bin
+	$(Q)$(MKIMAGE) -T mtk_image -a $(BL2_BASE) -e $(BL2_BASE)		\
+		-n "arm64=1;media=$(BROM_HEADER_TYPE)$(if $(NAND_TYPE),;nandinfo=$(NAND_TYPE))$(if $(DEVICE_HEADER_OFFSET),;hdroffset=$(DEVICE_HEADER_OFFSET))"	\
+		-d $(BUILD_PLAT)/bl2.bin $@
+endif
 
 .PHONY: $(BUILD_PLAT)/bl2.img $(AUTO_AR_TABLE) $(AUTO_AR_CONF)
 

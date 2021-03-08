@@ -171,6 +171,7 @@ endif
 
 all: $(BUILD_PLAT)/bl2.img
 
+ifneq ($(USE_MKIMAGE),1)
 ifneq ($(BROM_SIGN_KEY),)
 $(BUILD_PLAT)/bl2.img: $(BROM_SIGN_KEY)
 endif
@@ -183,6 +184,18 @@ $(BUILD_PLAT)/bl2.img: $(BUILD_PLAT)/bl2.bin $(DOIMAGETOOL)
 		$(if $(DEVICE_HEADER_OFFSET), -o $(DEVICE_HEADER_OFFSET))	\
 		$(if $(NAND_TYPE), -n $(NAND_TYPE))				\
 		$(BUILD_PLAT)/bl2.bin $@
+else
+MKIMAGE ?= mkimage
+
+ifneq ($(BROM_SIGN_KEY),)
+$(warning BL2 signing is not supported using mkimage)
+endif
+
+$(BUILD_PLAT)/bl2.img: $(BUILD_PLAT)/bl2.bin
+	$(Q)$(MKIMAGE) -T mtk_image -a $(BL2_BASE) -e $(BL2_BASE)		\
+		-n "media=$(BROM_HEADER_TYPE)$(if $(NAND_TYPE),;nandinfo=$(NAND_TYPE))"	\
+		-d $(BUILD_PLAT)/bl2.bin $@
+endif
 
 .PHONY: $(BUILD_PLAT)/bl2.img
 
