@@ -99,9 +99,6 @@ BL2_SOURCES		+=	drivers/mmc/mmc.c				\
 BROM_HEADER_TYPE	:=	sdmmc
 CPPFLAGS		+=	-DMSDC_INDEX=1
 DEVICE_HEADER_OFFSET	?=	0x80000
-ifeq ($(BROM_SIGN_KEY),)
-$(error BootROM signing key is required for SD booting. Please specify BROM_SIGN_KEY)
-endif
 endif
 ifeq ($(BOOT_DEVICE),snand)
 include ${MTK_PLAT}/common/drivers/snfi/mtk-snand.mk
