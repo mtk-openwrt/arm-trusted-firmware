@@ -10,6 +10,7 @@ DEBUG		:= 0
 ENCTOOL		?= encrypt_fw$(.exe)
 BINARY		:= $(notdir ${ENCTOOL})
 OPENSSL_DIR	:= /usr
+APSOC_COMMON	:= ../../plat/mediatek/apsoc_common
 
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
@@ -18,6 +19,7 @@ include ${MAKE_HELPERS_DIRECTORY}defaults.mk
 include ${MAKE_HELPERS_DIRECTORY}toolchain.mk
 
 OBJECTS := src/encrypt.o \
+           src/derive.o \
            src/cmd_opt.o \
            src/main.o
 
@@ -45,7 +47,8 @@ HOSTCCFLAGS += -DUSING_OPENSSL3=$(USING_OPENSSL3)
 
 # Make soft links and include from local directory otherwise wrong headers
 # could get pulled in from firmware tree.
-INC_DIR := -I ./include -I ../../include/tools_share -I ${OPENSSL_DIR}/include
+INC_DIR := -I ./include -I ../../include/tools_share -I ${OPENSSL_DIR}/include \
+	   -I${APSOC_COMMON}/img_dec/include
 
 # Include library directories where OpenSSL library files are located.
 # For a normal installation (i.e.: when ${OPENSSL_DIR} = /usr or
