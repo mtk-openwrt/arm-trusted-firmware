@@ -10,6 +10,7 @@
 #include <mt7629_def.h>
 #include <pll.h>
 
+	.globl	platform_mem_init
 	.globl	plat_secondary_cold_boot_setup
 	.globl	plat_report_exception
 	.globl	plat_is_my_cpu_primary
@@ -18,6 +19,17 @@
 	.globl	plat_crash_console_putc
 	.globl	plat_crash_console_flush
 	.globl	plat_reset_handler
+
+	/* --------------------------------------------------------
+	 * void platform_mem_init (void);
+	 *
+	 * Any memory init, relocation to be done before the
+	 * platform boots. Called very early in the boot process.
+	 * --------------------------------------------------------
+	 */
+func platform_mem_init
+	bx	lr
+endfunc platform_mem_init
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);

@@ -8,6 +8,7 @@
 #include <asm_macros.S>
 #include <mt7986_def.h>
 
+	.globl	platform_mem_init
 	.globl	plat_secondary_cold_boot_setup
 	.globl	plat_report_exception
 	.globl	platform_is_primary_cpu
@@ -17,6 +18,17 @@
 	.globl	plat_crash_console_flush
 	.globl	read_cpuectlr
 	.globl	write_cpuectlr
+
+	/* --------------------------------------------------------
+	 * void platform_mem_init (void);
+	 *
+	 * Any memory init, relocation to be done before the
+	 * platform boots. Called very early in the boot process.
+	 * --------------------------------------------------------
+	 */
+func platform_mem_init
+	ret
+endfunc platform_mem_init
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);

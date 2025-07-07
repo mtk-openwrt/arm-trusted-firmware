@@ -395,10 +395,6 @@ void plat_flush_next_bl_params(void)
 	flush_bl_params_desc();
 }
 
-void platform_mem_init(void)
-{
-}
-
 void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 				  u_register_t arg2, u_register_t arg3)
 {
