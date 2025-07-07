@@ -11,7 +11,7 @@
 	.globl	platform_mem_init
 	.globl	plat_secondary_cold_boot_setup
 	.globl	plat_report_exception
-	.globl	platform_is_primary_cpu
+	.globl	plat_is_my_cpu_primary
 	.globl  plat_my_core_pos
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
@@ -55,12 +55,13 @@ func write_cpuectlr
 	ret
 endfunc	write_cpuectlr
 
-func platform_is_primary_cpu
+func plat_is_my_cpu_primary
+	mrs     x0, mpidr_el1
 	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
 	cmp	x0, #PRIMARY_CPU
 	cset	x0, eq
 	ret
-endfunc platform_is_primary_cpu
+endfunc plat_is_my_cpu_primary
 
 	/* -----------------------------------------------------
 	 * unsigned int plat_my_core_pos(void);

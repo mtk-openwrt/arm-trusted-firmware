@@ -174,11 +174,6 @@ void bl2_el3_plat_arch_setup(void)
 	generic_delay_timer_init();
 }
 
-bool plat_is_my_cpu_primary(void)
-{
-	return true;
-}
-
 const struct initcall bl2_initcalls[] = {
 	INITCALL(mtk_wdt_init),
 	INITCALL(mtk_disable_PGD),
