@@ -59,11 +59,6 @@ void bl2_el3_plat_arch_setup(void)
 {
 }
 
-bool plat_is_my_cpu_primary(void)
-{
-	return true;
-}
-
 const struct initcall bl2_initcalls[] = {
 	INITCALL(mtk_timer_init),
 	INITCALL(generic_delay_timer_init),

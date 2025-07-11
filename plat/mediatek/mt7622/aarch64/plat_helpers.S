@@ -8,15 +8,27 @@
 #include <asm_macros.S>
 #include <mt7622_def.h>
 
+	.globl	platform_mem_init
 	.globl	plat_secondary_cold_boot_setup
 	.globl	plat_report_exception
-	.globl	platform_is_primary_cpu
+	.globl	plat_is_my_cpu_primary
 	.globl  plat_my_core_pos
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
 	.globl	plat_crash_console_flush
 	.globl	read_cpuectlr
 	.globl	write_cpuectlr
+
+	/* --------------------------------------------------------
+	 * void platform_mem_init (void);
+	 *
+	 * Any memory init, relocation to be done before the
+	 * platform boots. Called very early in the boot process.
+	 * --------------------------------------------------------
+	 */
+func platform_mem_init
+	ret
+endfunc platform_mem_init
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
@@ -43,12 +55,13 @@ func write_cpuectlr
 	ret
 endfunc	write_cpuectlr
 
-func platform_is_primary_cpu
+func plat_is_my_cpu_primary
+	mrs	x0, mpidr_el1
 	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
 	cmp	x0, #MT7622_PRIMARY_CPU
 	cset	x0, eq
 	ret
-endfunc platform_is_primary_cpu
+endfunc plat_is_my_cpu_primary
 
 	/* -----------------------------------------------------
 	 * unsigned int plat_my_core_pos(void);
