@@ -7,21 +7,23 @@
 
 #include <errno.h>
 #include <inttypes.h>
+
 #include <common/debug.h>
 #include <common/tbbr/tbbr_img_def.h>
-#include <drivers/partition/partition.h>
-#include <drivers/partition/mbr.h>
-#include <drivers/io/io_driver.h>
 #include <drivers/io/io_block.h>
+#include <drivers/io/io_driver.h>
 #include <drivers/mmc.h>
-#include "bl2_plat_setup.h"
+#include <drivers/partition/mbr.h>
+#include <drivers/partition/partition.h>
 #include <mtk-sd.h>
+
+#include "bl2_plat_setup.h"
 #ifdef DUAL_FIP
 #include "bsp_conf.h"
 #include "dual_fip.h"
 #endif
 
-#define FIP_BOOT_OFFSET				0x100000
+#define FIP_BOOT_OFFSET 0x100000
 
 static size_t mmc_uda_read_blocks(int lba, uintptr_t buf, size_t size);
 
@@ -49,8 +51,9 @@ static io_block_spec_t mmc_dev_bkup_gpt_spec = {
 };
 
 #ifdef DUAL_FIP
-#define BSPCONF_ALIGNED_SIZE	\
-	((sizeof(struct mtk_bsp_conf_data) + MMC_BLOCK_SIZE - 1) & ~(MMC_BLOCK_SIZE - 1))
+#define BSPCONF_ALIGNED_SIZE                                       \
+	((sizeof(struct mtk_bsp_conf_data) + MMC_BLOCK_SIZE - 1) & \
+	 ~(MMC_BLOCK_SIZE - 1))
 
 #ifdef FIP_IN_BOOT0
 static size_t mmc_boot0_read_blocks(int lba, uintptr_t buf, size_t size);
@@ -252,8 +255,7 @@ static void mtk_load_bsp_conf_mmc(uintptr_t dev_handle)
 	mmc_dev_bootconf1_spec.offset = entry->start;
 	mmc_dev_bootconf1_spec.length = BSPCONF_ALIGNED_SIZE;
 
-	ret = mtk_dev_read_spec(dev_handle,
-				(uintptr_t)&mmc_dev_bootconf1_spec,
+	ret = mtk_dev_read_spec(dev_handle, (uintptr_t)&mmc_dev_bootconf1_spec,
 				&buf, 0, sizeof(buf), MTK_BSP_CONF_NAME "1");
 	if (!ret) {
 		memcpy(&bc1, buf, sizeof(bc1));
@@ -271,8 +273,7 @@ static void mtk_load_bsp_conf_mmc(uintptr_t dev_handle)
 	mmc_dev_bootconf2_spec.offset -= BSPCONF_ALIGNED_SIZE;
 	mmc_dev_bootconf2_spec.length = BSPCONF_ALIGNED_SIZE;
 
-	ret = mtk_dev_read_spec(dev_handle,
-				(uintptr_t)&mmc_dev_bootconf2_spec,
+	ret = mtk_dev_read_spec(dev_handle, (uintptr_t)&mmc_dev_bootconf2_spec,
 				&buf, 0, sizeof(buf), MTK_BSP_CONF_NAME "2");
 	if (!ret) {
 		memcpy(&bc2, buf, sizeof(bc2));
@@ -357,8 +358,8 @@ int mtk_dual_fip_image_setup(uintptr_t *dev_handle, uintptr_t *image_spec)
 	mmc_dev_fip_spec.offset = FIP_BOOT_OFFSET;
 	mmc_dev_fip_spec.length = mmc_boot_part_size() - FIP_BOOT_OFFSET;
 
-	NOTICE("FIP in BOOT0 at 0x%zx, size 0x%zx\n",
-	       mmc_dev_fip_spec.offset, mmc_dev_fip_spec.length);
+	NOTICE("FIP in BOOT0 at 0x%zx, size 0x%zx\n", mmc_dev_fip_spec.offset,
+	       mmc_dev_fip_spec.length);
 
 	mmc_dev_handles[0] = mmc_dev_boot0_handle;
 #else
@@ -373,8 +374,8 @@ int mtk_dual_fip_image_setup(uintptr_t *dev_handle, uintptr_t *image_spec)
 	mmc_dev_fip2_spec.offset = FIP_BOOT_OFFSET;
 	mmc_dev_fip2_spec.length = mmc_boot_part_size() - FIP_BOOT_OFFSET;
 
-	NOTICE("FIP2 in BOOT1 at 0x%zx, size 0x%zx\n",
-	       mmc_dev_fip2_spec.offset, mmc_dev_fip2_spec.length);
+	NOTICE("FIP2 in BOOT1 at 0x%zx, size 0x%zx\n", mmc_dev_fip2_spec.offset,
+	       mmc_dev_fip2_spec.length);
 
 	mmc_dev_handles[1] = mmc_dev_boot1_handle;
 #else
@@ -422,7 +423,7 @@ int mtk_fip_image_setup(uintptr_t *dev_handle, uintptr_t *image_spec)
 	return mtk_dual_fip_image_setup(dev_handle, image_spec);
 #endif
 
-	*dev_handle = fill_io_block_spec_gpt(&mmc_dev_fip_spec, "fip");
+	*dev_handle = fill_io_block_spec_gpt(&mmc_dev_fip_spec, "u-boot");
 	if (!*dev_handle)
 		return -ENOENT;
 
@@ -442,10 +443,10 @@ void plat_patch_mbr_header(void *mbr)
 	mbr_entry = (mbr_entry_t *)(mbr + MBR_PRIMARY_ENTRY_OFFSET);
 	memcpy(&num, &mbr_entry->sector_nums, sizeof(uint32_t));
 	if (num != num_sectors) {
-		INFO("Patching MBR num of sectors: 0x%x -> 0x%x\n",
-		     num, num_sectors - 1);
+		INFO("Patching MBR num of sectors: 0x%x -> 0x%x\n", num,
+		     num_sectors - 1);
 
-		num = num_sectors -1;
+		num = num_sectors - 1;
 		memcpy(&mbr_entry->sector_nums, &num, sizeof(uint32_t));
 	}
 }
