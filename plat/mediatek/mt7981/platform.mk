@@ -8,6 +8,8 @@ MTK_PLAT		:=	plat/mediatek
 MTK_PLAT_SOC		:=	$(MTK_PLAT)/$(PLAT)
 APSOC_COMMON		:=	$(MTK_PLAT)/apsoc_common
 
+TRNG_SUPPORT		:=	1
+
 # Enable workarounds for selected Cortex-A53 erratas.
 ERRATA_A53_826319	:=	1
 ERRATA_A53_836870	:=	1

@@ -87,3 +87,14 @@ uint32_t plat_get_rnd(uint32_t *val)
 
 	return ret;
 }
+
+bool plat_get_entropy(uint64_t *val)
+{
+	uint32_t lo, hi;
+
+	if (plat_get_rnd(&lo) || plat_get_rnd(&hi))
+		return false;
+
+	*val = (((uint64_t)hi) << 32) | lo;
+	return true;
+}

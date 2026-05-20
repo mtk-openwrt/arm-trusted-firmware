@@ -8,6 +8,8 @@ MTK_PLAT		:=	plat/mediatek
 MTK_PLAT_SOC		:=	$(MTK_PLAT)/$(PLAT)
 APSOC_COMMON		:=	$(MTK_PLAT)/apsoc_common
 
+TRNG_SUPPORT		:=	1
+
 ifeq ($(FPGA),1)
 MTK_PLAT_SOC_BSP	:=	$(MTK_PLAT_SOC)/fpga
 include $(MTK_PLAT_SOC_BSP)/fpga.mk
