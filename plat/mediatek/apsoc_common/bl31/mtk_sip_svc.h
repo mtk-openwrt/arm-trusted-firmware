@@ -7,6 +7,7 @@
 #define MTK_SIP_SVC_H
 
 #include <stdint.h>
+#include <common/runtime_svc.h>
 #include <lib/smccc.h>
 #include <lib/utils_def.h>
 

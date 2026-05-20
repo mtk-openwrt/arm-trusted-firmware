@@ -19,7 +19,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				$(CPU_SOURCES)					\
 				plat/common/plat_gicv3.c			\
 				$(APSOC_COMMON)/drivers/uart/aarch64/hsuart.S	\
-				$(APSOC_COMMON)/drivers/trng/v2/rng.c		\
+				$(APSOC_COMMON)/drivers/trng/v2/trng.c		\
 				$(APSOC_COMMON)/drivers/wdt/mtk_wdt.c		\
 				$(APSOC_COMMON)/bl31/mtk_sip_svc.c		\
 				$(APSOC_COMMON)/bl31/mtk_boot_next.c		\
@@ -28,6 +28,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				$(APSOC_COMMON)/bl31/plat_topology.c		\
 				$(APSOC_COMMON)/bl31/mtk_gic_v3.c		\
 				$(APSOC_COMMON)/bl31/plat_pm.c			\
+				$(MTK_PLAT)/drivers/rng/rng.c			\
 				$(MTK_PLAT_SOC)/aarch64/plat_helpers.S		\
 				$(MTK_PLAT_SOC)/aarch64/platform_common.c	\
 				$(MTK_PLAT_SOC)/bl31/bl31_plat_setup.c		\
