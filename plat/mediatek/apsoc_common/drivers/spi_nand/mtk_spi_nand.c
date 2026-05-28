@@ -936,7 +936,6 @@ success:
 
 	spinand_dev.nand_dev->mtd_block_is_bad = spi_nand_mtd_block_is_bad;
 	spinand_dev.nand_dev->mtd_read_page = spi_nand_mtd_read_page;
-	spinand_dev.nand_dev->nb_planes = 1;
 
 	zeromem(&spinand_dev.spi_read_cache_op, sizeof(struct spi_mem_op));
 	spinand_dev.spi_read_cache_op.cmd.opcode = SPI_NAND_OP_READ_FROM_CACHE_4X;
