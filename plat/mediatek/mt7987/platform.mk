@@ -47,6 +47,15 @@ PLAT_INCLUDES		+=	-Iinclude/plat/arm/common			\
 include $(MTK_PLAT_SOC_BSP)/cpu.mk
 include $(MTK_PLAT_SOC_BSP)/bl2pl/bl2pl.mk
 include $(MTK_PLAT_SOC_BSP)/bl2/bl2.mk
+
+# Enable MMU and D-cache in BL2 (speeds up UBI/NMBM scan and image loading)
+MTK_BL2_ENABLE_DCACHE	?=	0
+ifeq ($(MTK_BL2_ENABLE_DCACHE),1)
+include lib/xlat_tables_v2/xlat_tables.mk
+BL2_SOURCES		+=	$(XLAT_TABLES_LIB_SRCS)			\
+				$(APSOC_COMMON)/bl2/mtk_bl2_dcache.c
+BL2_CPPFLAGS		+=	-DMTK_BL2_ENABLE_DCACHE
+endif
 include $(MTK_PLAT_SOC_BSP)/bl31/bl31.mk
 include $(MTK_PLAT_SOC_BSP)/bl32.mk
 include $(MTK_PLAT_SOC)/drivers/efuse/efuse.mk

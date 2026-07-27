@@ -531,6 +531,10 @@ void bl2_plat_preload_setup(void)
 
 	bl2_run_initcalls();
 
+#ifdef MTK_BL2_ENABLE_DCACHE
+	mtk_bl2_enable_dcache(dram_size);
+#endif
+
 	ret = bl2_fip_boot_setup();
 	if (ret) {
 		ERROR("FIP boot source initialization failed with %d\n", ret);
@@ -555,6 +559,10 @@ void mtk_bl2_set_dram_size(size_t size)
 
 void bl2_el3_plat_prepare_exit(void)
 {
+#ifdef MTK_BL2_ENABLE_DCACHE
+	mtk_bl2_exit_dcache_maintenance();
+#endif
+
 #ifdef MTK_PLAT_KEY
 	disable_plat_key();
 #endif

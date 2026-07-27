@@ -53,6 +53,10 @@ int mtk_fip_image_setup(uintptr_t *dev_handle, uintptr_t *image_spec);
 void mtk_fip_location(size_t *fip_off, size_t *fip_size);
 void mtk_bl2_set_dram_size(size_t size);
 
+/* Optional BL2 D-cache support (MTK_BL2_ENABLE_DCACHE=1) */
+void mtk_bl2_enable_dcache(size_t dram_size);
+void mtk_bl2_exit_dcache_maintenance(void);
+
 /* The following function prototypes are provided by platform's boot device */
 int mtk_plat_nor_setup(void);
 int mtk_plat_nand_setup(size_t *page_size, size_t *block_size, uint64_t *size);

@@ -10,6 +10,7 @@
 #include <string.h>
 #include <assert.h>
 
+#include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_ubi.h>
@@ -134,6 +135,24 @@ static io_type_t device_type_ubi(void)
 	return IO_TYPE_MTD;
 }
 
+static uint64_t ubi_time_us(void)
+{
+	return read_cntpct_el0() * 1000000ULL / read_cntfrq_el0();
+}
+
+static void ubi_timed_init_scan(io_ubi_dev_spec_t *dev_spec)
+{
+	uint64_t elapsed, t0 = ubi_time_us();
+
+	ubispl_init_scan(dev_spec, dev_spec->fastmap);
+
+	elapsed = ubi_time_us() - t0;
+	NOTICE("UBI: attach/scan%s took %llu.%03llu ms\n",
+	       dev_spec->fastmap ? " (fastmap)" : "",
+	       (unsigned long long)(elapsed / 1000U),
+	       (unsigned long long)(elapsed % 1000U));
+}
+
 static int ubi_volume_close(io_entity_t *entity)
 {
 	/* Clear the Entity info. */
@@ -175,7 +194,7 @@ static int ubi_volume_size(io_entity_t *entity, size_t *length)
 
 	if (!ud->dev_spec->init_done) {
 	retry:
-		ubispl_init_scan(ud->dev_spec, ud->dev_spec->fastmap);
+		ubi_timed_init_scan(ud->dev_spec);
 	}
 
 	ret = ubispl_get_volume_data_size(ud->dev_spec, ud->vol->vol_id,
@@ -239,7 +258,8 @@ static int ubi_volume_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 			   size_t *length_read)
 {
 	ubi_dev_state_t *ud = (ubi_dev_state_t *)entity->info;
-	uint32_t retlen;
+	uint64_t t0, elapsed;
+	uint32_t retlen = 0;
 	int ret;
 
 	assert(entity != NULL);
@@ -248,12 +268,27 @@ static int ubi_volume_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 
 	if (!ud->dev_spec->init_done) {
 	retry:
-		ubispl_init_scan(ud->dev_spec, ud->dev_spec->fastmap);
+		ubi_timed_init_scan(ud->dev_spec);
 	}
 
+	t0 = ubi_time_us();
 	ret = ubispl_load_volume(ud->dev_spec, ud->vol->vol_id,
 				 ud->vol->vol_name, (void *)buffer,
 				 ud->read_pos, length, &retlen);
+	elapsed = ubi_time_us() - t0;
+	if (!elapsed)
+		elapsed = 1;
+
+	if (ret >= 0) {
+		NOTICE("UBI: read %u bytes from volume %s in %llu.%03llu ms (%llu KB/s)\n",
+		       retlen,
+		       ud->vol->vol_name ? ud->vol->vol_name : "<unnamed>",
+		       (unsigned long long)(elapsed / 1000U),
+		       (unsigned long long)(elapsed % 1000U),
+		       (unsigned long long)(((uint64_t)retlen * 1000000ULL) /
+					    elapsed / 1024U));
+	}
+
 	if (ret < 0) {
 		if (ud->dev_spec->fastmap) {
 			ud->dev_spec->fastmap = 0;
